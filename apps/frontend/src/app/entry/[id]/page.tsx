@@ -1,6 +1,7 @@
 // src/app/entry/[id]/page.tsx
 import { entriesApi } from '@/features/entries/api/entries.api';
 import type { Entry } from '@/features/entries/types/entry';
+import { MarkdownContent } from '@/components/molecules/MarkdownContent/MarkdownContent';
 
 type PageProps = {
   params: { id: string };
@@ -47,13 +48,13 @@ export default async function EntryPage({ params }: PageProps) {
         )}
       </header>
 
-      {/* 本文（Markdown対応は後で。今はプレーンテキストを整形） */}
+
+      {/* 本文（Markdownで表示） */}
       <section>
         <h2 className="text-sm font-semibold mb-2 text-gray-700">本文</h2>
-        <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-          {entry.body}
-        </div>
+        <MarkdownContent content={entry.body} />
       </section>
+
 
       {/* 行ったワールド */}
       {entry.worlds && entry.worlds.length > 0 && (
