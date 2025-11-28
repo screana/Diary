@@ -4,10 +4,47 @@
 import { useState } from 'react';
 import { MarkdownContent } from '@/components/molecules/MarkdownContent/MarkdownContent';
 
+type World = { name: string; url?: string };
+
 export default function NewEntryPage() {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [body, setBody] = useState('');
+
+  const [worldsText, setWorldsText] = useState('');
+  const [guests, setGuests] = useState('');
+  const [tags, setTags] = useState('');
+
+  const handleSave = () => {
+    // 行ったワールド: 1行1ワールド / 「名前,URL」形式を想定
+    const worlds: World[] =
+      worldsText
+        .split('\n')
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0)
+        .map((line) => {
+          const [name, url] = line.split(',');
+          return {
+            name: name.trim(),
+            url: url?.trim(),
+          };
+        }) ?? [];
+
+    const payload = {
+      date,
+      title,
+      body,
+      worlds,
+      guests, // "Aさん,Bさん"
+      tags,   // "ホラー,作業" みたいな文字列
+    };
+
+    console.log('NEW ENTRY PAYLOAD:', payload);
+    alert(
+      '（今はまだバックエンド未接続）\n以下の形で送信する予定です。\n\n' +
+        JSON.stringify(payload, null, 2),
+    );
+  };
 
   return (
     <div className="bg-white rounded shadow-sm p-5 space-y-5">
@@ -35,36 +72,80 @@ export default function NewEntryPage() {
         />
       </div>
 
-      {/* 本文 2ペイン */}
+      {/* 一緒にいた人 */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-gray-700">
+          一緒にいた人（カンマ区切り）
+        </label>
+        <input
+          type="text"
+          value={guests}
+          onChange={(e) => setGuests(e.target.value)}
+          className="border border-gray-300 rounded px-2 py-1 text-sm"
+          placeholder="Aさん,Bさん"
+        />
+      </div>
+
+      {/* タグ */}
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-gray-700">
+          タグ（カンマ区切り）
+        </label>
+        <input
+          type="text"
+          value={tags}
+          onChange={(e) => setTags(e.target.value)}
+          className="border border-gray-300 rounded px-2 py-1 text-sm"
+          placeholder="ホラー,作業,初対面"
+        />
+      </div>
+
+      {/* 行ったワールド & 本文 2ペイン */}
       <div className="grid md:grid-cols-2 gap-4">
-        {/* 入力 */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-700">本文（Markdown）</label>
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className="border border-gray-300 rounded px-2 py-2 text-sm min-h-[300px] font-mono"
-            placeholder="# タイトル&#10;本文を書きます…"
-          />
+        <div className="flex flex-col gap-3">
+          {/* ワールド */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-700">
+              行ったワールド（1行1ワールド / 「名前,URL」）
+            </label>
+            <textarea
+              value={worldsText}
+              onChange={(e) => setWorldsText(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-2 text-sm min-h-[120px]"
+              placeholder={`例:\nRest and Sleep,https://vrchat.com/home/world/wrld_xxx\n作業ワールド,https://vrchat.com/home/world/wrld_yyy`}
+            />
+          </div>
+
+          {/* 本文入力 */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-700">
+              本文（Markdown）
+            </label>
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-2 text-sm min-h-[200px] font-mono"
+              placeholder="# タイトル&#10;本文を書きます…"
+            />
+          </div>
         </div>
 
         {/* プレビュー */}
-        <div>
+        <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-700">プレビュー</label>
-          <div className="border border-gray-200 rounded px-2 py-2 min-h-[300px]">
-            <MarkdownContent content={body || '（ここにプレビューが出ます）'} />
+          <div className="border border-gray-200 rounded px-2 py-2 min-h-[320px]">
+            <MarkdownContent
+              content={body || '（ここにプレビューが出ます）'}
+            />
           </div>
         </div>
       </div>
 
       <button
-        onClick={() => {
-          console.log('NEW ENTRY:', { date, title, body });
-          alert('（今はまだ保存機能なし）\nConsole にデータを出しました！');
-        }}
+        onClick={handleSave}
         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
       >
-        保存（※まだモック）
+        保存（※今はまだモック）
       </button>
     </div>
   );
