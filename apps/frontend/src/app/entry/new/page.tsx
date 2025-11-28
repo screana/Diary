@@ -15,36 +15,43 @@ export default function NewEntryPage() {
   const [guests, setGuests] = useState('');
   const [tags, setTags] = useState('');
 
-  const handleSave = () => {
-    // 行ったワールド: 1行1ワールド / 「名前,URL」形式を想定
-    const worlds: World[] =
-      worldsText
-        .split('\n')
-        .map((line) => line.trim())
-        .filter((line) => line.length > 0)
-        .map((line) => {
-          const [name, url] = line.split(',');
-          return {
-            name: name.trim(),
-            url: url?.trim(),
-          };
-        }) ?? [];
+const handleSave = async () => {
+  const worlds: World[] =
+    worldsText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => {
+        const [name, url] = line.split(',');
+        return {
+          name: name.trim(),
+          url: url?.trim(),
+        };
+      }) ?? [];
 
-    const payload = {
-      date,
-      title,
-      body,
-      worlds,
-      guests, // "Aさん,Bさん"
-      tags,   // "ホラー,作業" みたいな文字列
-    };
-
-    console.log('NEW ENTRY PAYLOAD:', payload);
-    alert(
-      '（今はまだバックエンド未接続）\n以下の形で送信する予定です。\n\n' +
-        JSON.stringify(payload, null, 2),
-    );
+  const payload = {
+    date,
+    title,
+    body,
+    worlds,
+    guests,
+    tags,
   };
+
+  // Hono API に POST
+  const res = await fetch('http://localhost:4000/entries', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const json = await res.json();
+
+  console.log('POST result:', json);
+  alert('サーバーに送信しました！\nコンソールに結果を表示しました。');
+};
 
   return (
     <div className="bg-white rounded shadow-sm p-5 space-y-5">
